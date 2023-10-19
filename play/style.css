@@ -1,0 +1,47 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.hide {
+    display: none;
+}
+
+#game {
+    width: 500px;
+    height: 500px;
+}
+
+.board {
+    width: 90%;
+    height: 90%;
+    margin: 5% auto;
+}
+
+.marked-x {
+    background-color: lightcoral;
+}
+
+.marked-y {
+    background-color: lightblue;
+}
+
+.cell {
+    float: left;
+    width: 32%;
+    height: 32%;
+    margin: 0;
+    padding: 0;
+}
+.cell.top {
+    border-bottom: 2px solid black;
+}
+.cell.bottom {
+    border-top: 2px solid black
+}
+.cell.left {
+    border-right: 2px solid black;
+}
+.cell.right {
+    border-left: 2px solid black;
+}
