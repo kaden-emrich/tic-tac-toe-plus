@@ -251,6 +251,20 @@ class TicTacBot {
         return -1;
     }
 
+    getAttackDefencePriority(playerDocClass, otherDocClass) {
+        let bestMove = this.getPossibleMoves(playerDocClass)[0];
+        let bestMoveDefenceValue = 0;
+        let bestMoveAttackValue = 0;
+
+        for(let thisMove of this.getPossibleMoves(playerDocClass)) {
+            for(let opponentMove of this.getPossibleMoves(otherDocClass)) {
+                if(opponentMove != thisMove) {
+                    
+                }
+            }
+        }
+    }
+
     getAdjustedBotPriority(playerDocClass, otherDocClass) {
         let bestMove = this.getPossibleMoves(playerDocClass)[0];
         let bestMoveValue = 0;
