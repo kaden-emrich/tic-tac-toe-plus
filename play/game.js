@@ -305,14 +305,14 @@ class TicTacBot {
             return this.checkWinMoves(otherTurn);
         }
 
-        // check if there is a play that the opponent can make that will guarantee they win
-        if(this.getAdjustedBotPriority(otherTurn) >= 0) {
-            return this.getAdjustedBotPriority(otherTurn);
-        }
-
         // check if there is a play that will guarantee a win next turn
         if(this.getAdjustedBotPriority(botTurn) >= 0) {
             return this.getAdjustedBotPriority(botTurn);
+        }
+
+        // check if there is a play that the opponent can make that will guarantee they win
+        if(this.getAdjustedBotPriority(otherTurn) >= 0) {
+            return this.getAdjustedBotPriority(otherTurn);
         }
 
         // check for backup move
