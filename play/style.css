@@ -8,14 +8,27 @@ body {
 }
 
 #game {
+    display: inline-block;
     width: 500px;
     height: 500px;
+    margin: 0;
+    padding: 0;
 }
 
 .board {
+    box-sizing: border-box;
     width: 90%;
     height: 90%;
-    margin: 5% auto;
+    margin: 5% 5%;
+}
+
+.game-over {
+    opacity: 0.5;
+    background-color: lightgray;
+}
+
+.tie {
+   background-color: lightgray;
 }
 
 .marked-x {
@@ -27,9 +40,10 @@ body {
 }
 
 .cell {
+    box-sizing: border-box;
     float: left;
-    width: 32%;
-    height: 32%;
+    width: calc(100% / 3);
+    height: calc(100% / 3);
     margin: 0;
     padding: 0;
 }
