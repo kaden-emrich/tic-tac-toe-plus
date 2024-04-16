@@ -31,6 +31,10 @@ body {
    background-color: lightgray;
 }
 
+.highlighted {
+    background-color: greenyellow;
+}
+
 .marked-x {
     background-color: lightcoral;
 }
@@ -41,6 +45,10 @@ body {
 
 .cell {
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
     float: left;
     width: calc(100% / 3);
     height: calc(100% / 3);
