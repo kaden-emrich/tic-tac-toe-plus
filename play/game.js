@@ -201,9 +201,9 @@ class TicTacToe {
             this.cells[i].classList.remove('highlighted');
         }
 
-        let max = 0;
+        let max = 0;    
         for(let i = 0; i < arr.length; i++) {
-            if(arr[max] == undefined) {
+            if(!arr[max]) {
                 max = i;
             }
             if(arr[i] && arr[max] && arr[i] > arr[max]) {
@@ -379,7 +379,7 @@ class TicTacBot {
 }// class TicTacBot
 
 class superBot {
-    constructor(game, foresight = 18) {
+    constructor(game, foresight = 9) {
         this.game = game;
         this.foresight = foresight;
     }// constructor(parentElement)
@@ -393,17 +393,17 @@ class superBot {
 
     simNextTurn(botMove, otherMove, botTurn = true, lookAhead) {
         if(lookAhead <= 0) {
-            // console.log('foresight abandon');
+            console.log('foresight abandon');
             return 0;
         }
-        if((botMove & otherMove) >= 31) {
-            return lookAhead;
+        if((botMove | otherMove) >= 511) {
+            return 0;
         }
         if(TicTacToe.checkBinaryWin(otherMove)) {
-            return 0-(lookAhead);
+            return 0-(1);
         }
         if(TicTacToe.checkBinaryWin(botMove)) {
-            return lookAhead;
+            return 1;
         }
 
         // console.log(`starting turn on layer ${lookAhead} with ${(botMove >>> 0).toString(2)} and ${(otherMove >>> 0).toString(2)} (${botTurn ? 'bot' : 'not bot'})`); // for debugging
@@ -423,12 +423,45 @@ class superBot {
         return moveValue;
     }
 
-    getWeightedMoveValues(botMoves, otherMoves, lookAhead = 18) {
+
+    minimax(botMove, otherMove, isMaximizing = true, lookAhead) {
+        if(lookAhead <= 0) {
+            console.log('foresight abandon');
+            return 0;
+        }
+        if((botMove | otherMove) >= 511) { // tie
+            return 0;
+        }
+        if(TicTacToe.checkBinaryWin(otherMove)) {
+            return 0-(lookAhead);
+        }
+        if(TicTacToe.checkBinaryWin(botMove)) {
+            return lookAhead;
+        }
+
+        // console.log(`starting turn on layer ${lookAhead} with ${(botMove >>> 0).toString(2)} and ${(otherMove >>> 0).toString(2)} (${botTurn ? 'bot' : 'not bot'})`); // for debugging
+
+        let maxValue = isMaximizing ? -Infinity : Infinity;
+        for(let i = 0; i < 9; i++) {
+            let thisMove = 2 ** i;
+            if(superBot.testPosibleMove(botMove | otherMove, thisMove)) {
+                if(isMaximizing) {
+                    maxValue = Math.max(this.minimax(botMove + thisMove, otherMove, false,  lookAhead-1));
+                }
+                else {
+                    maxValue = Math.min(this.minimax(botMove, otherMove + thisMove, true, lookAhead-1));
+                }
+            }
+        }
+        return maxValue;
+    }
+
+    getWeightedMoveValues(botMoves, otherMoves, lookAhead = 9) {
         let weightedValues = Array(9);
         for(let i = 0; i < 9; i++) {
             let thisMove = 2 ** i;
             if(superBot.testPosibleMove(botMoves | otherMoves, thisMove)) {
-                weightedValues[i] = this.simNextTurn(botMoves + thisMove, otherMoves, true, lookAhead);
+                weightedValues[i] = this.minimax(botMoves + thisMove, otherMoves, true, lookAhead);
             }
         }
         return weightedValues;
@@ -458,7 +491,7 @@ class superBot {
 }// class superBot
 
 var gameBoard = new TicTacToe(game);
-var sBot = new superBot(gameBoard, 18);
+var sBot = new superBot(gameBoard, 9);
 
 function newGame(botPlayer) {
     console.log('new game');
@@ -470,5 +503,5 @@ function newGame(botPlayer) {
         gameBoard.bot = new TicTacBot(gameBoard, 2);
     }
 
-    sBot = new superBot(gameBoard, 18); 
+    sBot = new superBot(gameBoard, 9); 
 }
