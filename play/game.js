@@ -164,7 +164,7 @@ class TicTacToe {
         if(this.bot && this.bot.player && this.bot.player == this.playerTurn) {
             this.cellClick(this.bot.getBestMove());
         }
-        sBot.getBestMove();
+        // sBot.getBestMove();
     }
 
     cellClick(cellIndex) {
@@ -201,12 +201,12 @@ class TicTacToe {
             this.cells[i].classList.remove('highlighted');
         }
 
-        let max = 0;    
+        let max = 0;
         for(let i = 0; i < arr.length; i++) {
-            if(!arr[max]) {
+            if(arr[max] == undefined) {
                 max = i;
             }
-            if(arr[i] && arr[max] && arr[i] > arr[max]) {
+            else if(arr[i] != undefined && arr[i] > arr[max]) {
                 max = i;
             }
         }
@@ -379,8 +379,9 @@ class TicTacBot {
 }// class TicTacBot
 
 class superBot {
-    constructor(game, foresight = 9) {
+    constructor(game, player, foresight = 9,) {
         this.game = game;
+        this.player = player;
         this.foresight = foresight;
     }// constructor(parentElement)
 
@@ -426,10 +427,7 @@ class superBot {
 
     minimax(botMove, otherMove, isMaximizing = true, lookAhead) {
         if(lookAhead <= 0) {
-            console.log('foresight abandon');
-            return 0;
-        }
-        if((botMove | otherMove) >= 511) { // tie
+            // console.log('foresight abandon'); // for debugging
             return 0;
         }
         if(TicTacToe.checkBinaryWin(otherMove)) {
@@ -437,6 +435,9 @@ class superBot {
         }
         if(TicTacToe.checkBinaryWin(botMove)) {
             return lookAhead;
+        }
+        if((botMove | otherMove) >= 511) { // tie
+            return 0;
         }
 
         // console.log(`starting turn on layer ${lookAhead} with ${(botMove >>> 0).toString(2)} and ${(otherMove >>> 0).toString(2)} (${botTurn ? 'bot' : 'not bot'})`); // for debugging
@@ -446,10 +447,10 @@ class superBot {
             let thisMove = 2 ** i;
             if(superBot.testPosibleMove(botMove | otherMove, thisMove)) {
                 if(isMaximizing) {
-                    maxValue = Math.max(this.minimax(botMove + thisMove, otherMove, false,  lookAhead-1));
+                    maxValue = Math.max(maxValue, this.minimax(botMove + thisMove, otherMove, false, lookAhead-1));
                 }
                 else {
-                    maxValue = Math.min(this.minimax(botMove, otherMove + thisMove, true, lookAhead-1));
+                    maxValue = Math.min(maxValue, this.minimax(botMove, otherMove + thisMove, true, lookAhead-1));
                 }
             }
         }
@@ -461,10 +462,30 @@ class superBot {
         for(let i = 0; i < 9; i++) {
             let thisMove = 2 ** i;
             if(superBot.testPosibleMove(botMoves | otherMoves, thisMove)) {
-                weightedValues[i] = this.minimax(botMoves + thisMove, otherMoves, true, lookAhead);
+                weightedValues[i] = this.minimax(botMoves + thisMove, otherMoves, false, lookAhead);
             }
         }
         return weightedValues;
+    }
+
+    showMoveValues() {
+        let botTurn = 'marked-o';
+        let otherTurn = 'marked-x';
+
+        // is game active
+        if(this.game.playerTurn == 1) {
+            botTurn = 'marked-x';
+            otherTurn = 'marked-o';
+        }
+        else if(this.game.playerTurn == 2) {
+            botTurn = 'marked-o';
+            otherTurn = 'marked-x';
+        }
+
+        let botMoves = this.game.getBinary(botTurn);
+        let otherMoves = this.game.getBinary(otherTurn);
+
+        this.game.transposeValues(this.getWeightedMoveValues(botMoves, otherMoves, this.foresight));
     }
 
     getBestMove() {
@@ -485,8 +506,14 @@ class superBot {
         let otherMoves = this.game.getBinary(otherTurn);
 
         let values = this.getWeightedMoveValues(botMoves, otherMoves, this.foresight);
-        this.game.transposeValues(values);
-        return values;
+        // this.game.transposeValues(values);
+        let maxValue = 0;
+        for(let i = 0; i < values.length; i++) {
+            if(values[maxValue] == undefined || (values[i] != undefined && values[i] > values[maxValue])) {
+                maxValue = i;
+            }
+        }
+        return maxValue;
     }
 }// class superBot
 
@@ -497,11 +524,12 @@ function newGame(botPlayer) {
     console.log('new game');
     gameBoard.reset();
     if(botPlayer == 1) {
-        gameBoard.bot = new TicTacBot(gameBoard, 1);
+        gameBoard.bot = new superBot(gameBoard, 1);
+        gameBoard.cellClick(gameBoard.bot.getBestMove());
     }
     else if(botPlayer == 2) {
-        gameBoard.bot = new TicTacBot(gameBoard, 2);
+        gameBoard.bot = new superBot(gameBoard, 2);
     }
 
-    sBot = new superBot(gameBoard, 9); 
+    sBot = new superBot(gameBoard, 9);
 }
